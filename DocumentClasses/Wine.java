@@ -46,6 +46,10 @@ public class Wine {
         this.alcohol = Double.parseDouble(values[10]);
     }
 
+    public int getActualQuality(){
+        return quality;
+    }
+
     public int predictQuality(){
         int quality = 0;
         return quality;
