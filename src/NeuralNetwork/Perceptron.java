@@ -42,7 +42,7 @@ public class Perceptron {
             sum += weights[i] * input[i];
         }
 
-        return step(sum);
+        return sigmoid(sum);
     }
 
     /**
@@ -83,6 +83,8 @@ public class Perceptron {
     }
 
     private double step(double x) {
-        return x > 0 ? 1 : 0;
+        return x >= 0 ? 1 : 0;
     }
+
+    private double sigmoid(double x) { return (1 / (1 + Math.exp(-x)));}
 }

@@ -13,8 +13,6 @@ import com.opencsv.exceptions.CsvValidationException;
 public class Demo {
     public static final String PATH = "./files/";
     public static ArrayList<Wine> data = new ArrayList<Wine>();
-    public static ArrayList<Wine> positiveClass = new ArrayList<>();
-    public static ArrayList<Wine> negativeClass = new ArrayList<>();
     public static double[][] trainingData, testingData;
     public static int[] trainingTargets, testingTargets;
     public static int trainTestSplit;
@@ -27,11 +25,6 @@ public class Demo {
                 lineInArray = lineInArray[0].replaceAll("\\s", "").split(";");
                 Wine w = new Wine(lineInArray);
                 data.add(w);
-                if (w.quality > 5) {
-                    positiveClass.add(w);
-                } else {
-                    negativeClass.add(w);
-                }
             }
         } catch (CsvValidationException | IOException e) {
             e.printStackTrace();
@@ -44,31 +37,8 @@ public class Demo {
 
         Perceptron p = new Perceptron(11, 0.1);
 
-        // initialize training data
-        trainingData = new double[trainTestSplit][11];
-        trainingTargets =  new int[trainTestSplit];
-
         int[] rand = new Random().ints(0, data.size()).distinct().limit(data.size()).toArray();
-        int ones = 0;
-        int zeroes = 0;
-        for(int i = 0; i < trainTestSplit; i++) {
-            trainingData[i] = data.get(rand[i]).getAttributes();
-            int value = data.get(rand[i]).getActualQuality();
-            trainingTargets[i] = value;
-            if(Math.abs(ones - zeroes) > 100){
-                ArrayList<Wine> sampleFrom = ones > zeroes ? negativeClass : positiveClass;
-                int get = new Random().nextInt(sampleFrom.size());
-                trainingData[i] = sampleFrom.get(get).getAttributes();
-                value = sampleFrom.get(get).getActualQuality();
-                trainingTargets[i] = value;
-            }
-            if(value == 0){
-                zeroes += 1;
-            }
-            else{
-                ones += 1;
-            }
-        }
+        TrainTestSplit(rand);
 
         // initialize testing data
         testingData = new double[data.size() - trainTestSplit][11];
@@ -83,11 +53,46 @@ public class Demo {
 
         results = new double[testingTargets.length];
         for(int i = 0; i < testingData.length; i++){
-            results[i] = p.predict(testingData[i]);
+            results[i] = p.predict(testingData[i]) >= 0.5 ? 1 : 0;
         }
 
         evaluateClusters();
         confusionMatrix();
+    }
+
+    public static void TrainTestSplit(int[] rand){
+        ArrayList<Wine> negativeClass = new ArrayList<>();
+        ArrayList<Wine> positiveClass = new ArrayList<>();
+
+        for(int i = 0; i < trainTestSplit; i++){
+            Wine dataPt = data.get(rand[i]);
+            if(dataPt.getActualQuality() == 0){
+                negativeClass.add(dataPt);
+            }
+            else{
+                positiveClass.add(dataPt);
+            }
+        }
+
+        int sizeNeg = negativeClass.size();
+        int sizePos = positiveClass.size();
+        int sizeOfTraining = Math.max(sizeNeg, sizePos);
+        int[] randSamples = new Random().ints(0, sizeOfTraining)
+                .distinct().limit(sizeOfTraining).toArray();
+
+        // initialize training data
+        trainingData = new double[sizeOfTraining * 2][11];
+        trainingTargets =  new int[sizeOfTraining * 2];
+
+        int j = 0;
+        for(int i = 0; i < sizeOfTraining; i++) {
+            trainingData[j] = positiveClass.get(randSamples[i] % sizePos).getAttributes();
+            trainingTargets[j] = positiveClass.get(randSamples[i] % sizePos).getActualQuality();
+            j += 1;
+            trainingData[j] = negativeClass.get(randSamples[i] % sizeNeg).getAttributes();
+            trainingTargets[j] = negativeClass.get(randSamples[i] % sizeNeg).getActualQuality();
+            j += 1;
+        }
     }
 
     public static void evaluateClusters() {
