@@ -57,12 +57,13 @@ public class Demo {
 
         results = new double[testingTargets.length];
         for(int i = 0; i < testingData.length; i++){
-            System.out.println(p.predict(testingData[i]));
             results[i] = p.predict(testingData[i]);
         }
 
         evaluateClusters();
         confusionMatrix();
+
+        System.out.println("Accuracy: " + p.evaluate(testingData, testingTargets) + "\n");
     }
 
     public static void evaluateClusters() {
@@ -120,6 +121,7 @@ public class Demo {
                 "False Positive : %d\n" +
                 "False Negative : %d\n\n",
                 TPCluster0, TNCluster0, FPCluster0, FNCluster0);
+
     }
 
     public static void confusionMatrix() {
@@ -156,6 +158,15 @@ public class Demo {
         System.out.print("\t\t\t1\t0\n");
         System.out.printf("\t\t1\t%d\t%d\n", CM11, CM10);
         System.out.println("Pred");
-        System.out.printf("\t\t0\t%d\t%d\n", CM01, CM00);
+        System.out.printf("\t\t0\t%d\t%d\n\n", CM01, CM00);
+
+//        double precision = (double) CM11 / (CM11 + CM10);
+//        double recall = (double) CM11 / (CM11 + CM01);
+//        double f1 = 2 * precision * recall / (precision + recall);
+//        System.out.printf("Precision: %f\n" +
+//                        "Recall: %f\n" +
+//                        "f1: %f\n\n",
+//                precision, recall, f1);
+
     }
 }

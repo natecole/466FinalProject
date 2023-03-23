@@ -55,9 +55,9 @@ public class Perceptron {
         for (int epoch = 0; epoch < numEpochs; epoch++) {
             for (int i = 0; i < inputs.length; i++) {
                 double[] input = inputs[i];
-                int y = targets[i];
-                double delta = predict(input);
-                double error = y - delta;
+                int target = targets[i];
+                double predicted = predict(input);
+                double error = target - predicted;
 
                 bias += learningRate * error;
 
@@ -66,6 +66,20 @@ public class Perceptron {
                 }
             }
         }
+    }
+
+    public double evaluate(double[][] inputs, int[] targets) {
+        int numCorrect = 0;
+        for (int i = 0; i < inputs.length; i++) {
+            double[] input = inputs[i];
+            int target = targets[i];
+            double predicted = predict(input);
+            int result = (predicted >= 0.5) ? 1 : 0;
+            if (result == target) {
+                numCorrect++;
+            }
+        }
+        return (double) numCorrect / inputs.length;
     }
 
     private double step(double x) {
