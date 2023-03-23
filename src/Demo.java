@@ -12,7 +12,9 @@ import com.opencsv.exceptions.CsvValidationException;
 public class Demo {
     public static final String PATH = "./files/";
     public static ArrayList<Wine> data = new ArrayList<Wine>();
-    public static double[] targets;
+    public static double[][] trainingData, testingData;
+    public static int[] trainingTargets, testingTargets;
+    public static int trainTestSplit;
 
     public static void processData(String filename) {
         try (CSVReader reader = new CSVReader(new FileReader(PATH+filename))) {
@@ -28,16 +30,32 @@ public class Demo {
 
     public static void main(String[] args) {
         processData("winequality-white.csv");
+        trainTestSplit = (int) (data.size() * .8);
 
         Perceptron p = new Perceptron(11, 0.01);
-        double[][] inputs = new double[data.size() - 1][11];
-        int[] targets =  new int[data.size() - 1];
 
-        for(int i = 0; i < data.size() - 1; i++){
-            inputs[i] = data.get(i).getAttributes();
-            targets[i] = data.get(i).getActualQuality();
+        // initialize training data
+        trainingData = new double[trainTestSplit][11];
+        trainingTargets =  new int[trainTestSplit];
+
+        for(int i = 0; i < trainTestSplit; i++) {
+            trainingData[i] = data.get(i).getAttributes();
+            trainingTargets[i] = data.get(i).getActualQuality();
         }
 
-        p.train(inputs, targets, 100);
+        // initialize testing data
+        testingData = new double[data.size() - trainTestSplit][11];
+        testingTargets =  new int[data.size() - trainTestSplit];
+
+        for(int i = 0; i < data.size() - trainTestSplit; i++) {
+            testingData[i] = data.get(i + trainTestSplit).getAttributes();
+            testingTargets[i] = data.get(i + trainTestSplit).getActualQuality();
+        }
+
+        p.train(trainingData, trainingTargets, 100);
+
+        //TODO: test model
+
+        
     }
 }
