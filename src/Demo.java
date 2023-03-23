@@ -53,7 +53,10 @@ public class Demo {
 
         results = new double[testingTargets.length];
         for(int i = 0; i < testingData.length; i++){
-            results[i] = p.predict(testingData[i]) >= 0.5 ? 1 : 0;
+            // For step
+            results[i] = p.predict(testingData[i]);
+            // For sigmoid
+//            results[i] = p.predict(testingData[i]) >= 0.5 ? 1 : 0;
         }
 
         evaluateClusters();

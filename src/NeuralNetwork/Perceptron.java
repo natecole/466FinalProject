@@ -42,7 +42,7 @@ public class Perceptron {
             sum += weights[i] * input[i];
         }
 
-        return sigmoid(sum);
+        return step(sum);
     }
 
     /**
