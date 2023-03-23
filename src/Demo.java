@@ -61,6 +61,7 @@ public class Demo {
         }
 
         evaluateClusters();
+        confusionMatrix();
     }
 
     public static void evaluateClusters() {
@@ -118,5 +119,42 @@ public class Demo {
                 "False Positive : %d\n" +
                 "False Negative : %d\n\n",
                 TPCluster0, TNCluster0, FPCluster0, FNCluster0);
+    }
+
+    public static void confusionMatrix() {
+        int CM00 = 0;
+        int CM01 = 0;
+        int CM10 = 0;
+        int CM11 = 0;
+
+        for (int i = 0; i < testingTargets.length; i++) {
+            if(results[i] == testingTargets[i]){
+                // result = 1, Actual = 1
+                if(results[i] == 1) {
+                    CM11 += 1;
+                }
+                // result = 0, Actual = 0
+                else{
+                    CM00 += 1;
+                }
+            }
+            else if(results[i] != testingTargets[i]){
+                // result = 1, Actual = 0
+                if(results[i] == 1){
+                    CM10 += 1;
+                }
+                // result = 0, Actual = 1
+                else{
+                    CM01 += 1;
+                }
+            }
+        }
+
+        System.out.println("Confusion Matrix\n");
+        System.out.println("\t\t\tActual\n");
+        System.out.print("\t\t\t1\t0\n");
+        System.out.printf("\t\t1\t%d\t%d\n", CM11, CM10);
+        System.out.println("Pred");
+        System.out.printf("\t\t0\t%d\t%d\n", CM01, CM00);
     }
 }
