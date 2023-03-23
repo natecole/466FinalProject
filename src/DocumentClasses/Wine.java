@@ -44,15 +44,17 @@ public class Wine {
         this.pH = Double.parseDouble(values[8]);
         this.sulphates = Double.parseDouble(values[9]);
         this.alcohol = Double.parseDouble(values[10]);
+        this.quality = Integer.parseInt(values[11]);
     }
 
     public int getActualQuality(){
-        return quality;
+        return quality > 6 ? 1 : 0;
     }
 
-    public int predictQuality(){
-        int quality = 0;
-        return quality;
+    public double[] getAttributes() {
+        double[] ret = {fixed_acidity, volatile_aciditiy, citric_acid, residual_sugar, chlorides, free_sulfur_dioxide, total_sulfur_dioxide,
+                density, pH, sulphates, alcohol};
+        return ret;
     }
 
     @Override

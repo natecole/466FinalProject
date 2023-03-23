@@ -28,8 +28,16 @@ public class Demo {
 
     public static void main(String[] args) {
         processData("winequality-white.csv");
-        for(Wine entry : data){
-            System.out.println(entry.toString());
+
+        Perceptron p = new Perceptron(11, 0.01);
+        double[][] inputs = new double[data.size() - 1][11];
+        int[] targets =  new int[data.size() - 1];
+
+        for(int i = 0; i < data.size() - 1; i++){
+            inputs[i] = data.get(i).getAttributes();
+            targets[i] = data.get(i).getActualQuality();
         }
+
+        p.train(inputs, targets, 100);
     }
 }

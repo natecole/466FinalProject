@@ -59,9 +59,6 @@ public class Perceptron {
                 double delta = predict(input);
                 double error = y - delta;
 
-                if(error == 0)
-                    break;
-
                 bias += learningRate * error;
 
                 for (int j = 0; j < weights.length; j++) {
