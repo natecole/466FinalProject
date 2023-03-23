@@ -53,11 +53,12 @@ public class Demo {
             testingTargets[i] = data.get(i + trainTestSplit).getActualQuality();
         }
 
-        p.train(trainingData, trainingTargets, 100);
+        p.train(trainingData, trainingTargets, 10000);
 
         results = new double[testingTargets.length];
         for(int i = 0; i < testingData.length; i++){
-            results[i] = p.predict(testingData[i]) >= 0 ? 0 : 1;
+            System.out.println(p.predict(testingData[i]));
+            results[i] = p.predict(testingData[i]);
         }
 
         evaluateClusters();

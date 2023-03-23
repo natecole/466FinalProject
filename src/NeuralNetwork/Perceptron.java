@@ -42,7 +42,7 @@ public class Perceptron {
             sum += weights[i] * input[i];
         }
 
-        return sigmoid(sum);
+        return step(sum);
     }
 
     /**
@@ -61,14 +61,14 @@ public class Perceptron {
 
                 bias += learningRate * error;
 
-                for (int j = 0; j < weights.length; j++) {
+                 for (int j = 0; j < weights.length; j++) {
                     weights[j] += learningRate * error * input[j];
                 }
             }
         }
     }
 
-    private double sigmoid(double x) {
-        return 1.0 / (1.0 + Math.exp(-x));
+    private double step(double x) {
+        return x > 0 ? 1 : 0;
     }
 }
