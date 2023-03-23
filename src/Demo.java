@@ -86,12 +86,12 @@ public class Demo {
                 // result = 1, Actual = 1
                 if(results[i] == 1) {
                     TPCluster1 += 1;
-                    FPCluster0 += 1;
+                    TNCluster0 += 1;
                 }
                 // result = 0, Actual = 0
                 else{
                     TPCluster0 += 1;
-                    FPCluster1 += 1;
+                    TNCluster1 += 1;
                 }
             }
             else if(results[i] != testingTargets[i]){
