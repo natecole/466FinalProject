@@ -1,7 +1,8 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.ArrayList;
+import java.util.*;
 import java.io.IOException;
+
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 
@@ -12,6 +13,8 @@ import com.opencsv.exceptions.CsvValidationException;
 public class Demo {
     public static final String PATH = "./files/";
     public static ArrayList<Wine> data = new ArrayList<Wine>();
+    public static ArrayList<Wine> positiveClass = new ArrayList<>();
+    public static ArrayList<Wine> negativeClass = new ArrayList<>();
     public static double[][] trainingData, testingData;
     public static int[] trainingTargets, testingTargets;
     public static int trainTestSplit;
@@ -22,7 +25,13 @@ public class Demo {
             String[] lineInArray;
             while ((lineInArray = reader.readNext()) != null) {
                 lineInArray = lineInArray[0].replaceAll("\\s", "").split(";");
-                data.add(new Wine(lineInArray));
+                Wine w = new Wine(lineInArray);
+                data.add(w);
+                if (w.quality > 5) {
+                    positiveClass.add(w);
+                } else {
+                    negativeClass.add(w);
+                }
             }
         } catch (CsvValidationException | IOException e) {
             e.printStackTrace();
@@ -33,15 +42,32 @@ public class Demo {
         processData("winequality-white.csv");
         trainTestSplit = (int) (data.size() * .8);
 
-        Perceptron p = new Perceptron(11, 0.01);
+        Perceptron p = new Perceptron(11, 0.1);
 
         // initialize training data
         trainingData = new double[trainTestSplit][11];
         trainingTargets =  new int[trainTestSplit];
 
+        int[] rand = new Random().ints(0, data.size()).distinct().limit(data.size()).toArray();
+        int ones = 0;
+        int zeroes = 0;
         for(int i = 0; i < trainTestSplit; i++) {
-            trainingData[i] = data.get(i).getAttributes();
-            trainingTargets[i] = data.get(i).getActualQuality();
+            trainingData[i] = data.get(rand[i]).getAttributes();
+            int value = data.get(rand[i]).getActualQuality();
+            trainingTargets[i] = value;
+            if(Math.abs(ones - zeroes) > 100){
+                ArrayList<Wine> sampleFrom = ones > zeroes ? negativeClass : positiveClass;
+                int get = new Random().nextInt(sampleFrom.size());
+                trainingData[i] = sampleFrom.get(get).getAttributes();
+                value = sampleFrom.get(get).getActualQuality();
+                trainingTargets[i] = value;
+            }
+            if(value == 0){
+                zeroes += 1;
+            }
+            else{
+                ones += 1;
+            }
         }
 
         // initialize testing data
@@ -49,15 +75,14 @@ public class Demo {
         testingTargets =  new int[data.size() - trainTestSplit];
 
         for(int i = 0; i < data.size() - trainTestSplit; i++) {
-            testingData[i] = data.get(i + trainTestSplit).getAttributes();
-            testingTargets[i] = data.get(i + trainTestSplit).getActualQuality();
+            testingData[i] = data.get(rand[i + trainTestSplit]).getAttributes();
+            testingTargets[i] = data.get(rand[i + trainTestSplit]).getActualQuality();
         }
 
-        p.train(trainingData, trainingTargets, 10000);
+        p.train(trainingData, trainingTargets, 1000);
 
         results = new double[testingTargets.length];
         for(int i = 0; i < testingData.length; i++){
-            System.out.println(p.predict(testingData[i]));
             results[i] = p.predict(testingData[i]);
         }
 
@@ -85,12 +110,12 @@ public class Demo {
                 // result = 1, Actual = 1
                 if(results[i] == 1) {
                     TPCluster1 += 1;
-                    FPCluster0 += 1;
+                    TNCluster0 += 1;
                 }
                 // result = 0, Actual = 0
                 else{
                     TPCluster0 += 1;
-                    FPCluster1 += 1;
+                    TNCluster1 += 1;
                 }
             }
             else if(results[i] != testingTargets[i]){
@@ -114,12 +139,24 @@ public class Demo {
                 "False Negative : %d\n\n",
                 TPCluster1, TNCluster1, FPCluster1, FNCluster1);
 
+        double prec = (double)TPCluster1 / (TPCluster1 + FPCluster1);
+        double recall = (double)TPCluster1 / (TPCluster1 + FNCluster1);
+        System.out.printf("Precision : %f\n", prec);
+        System.out.printf("Recall : %f\n", recall);
+        System.out.printf("F1 : %f\n\n", prec * recall / (prec + recall));
+
         System.out.println("Cluster 0");
         System.out.printf("True Positive : %d\n" +
                 "True Negative : %d\n" +
                 "False Positive : %d\n" +
                 "False Negative : %d\n\n",
                 TPCluster0, TNCluster0, FPCluster0, FNCluster0);
+
+        prec = (double)TPCluster0 / (TPCluster0 + FPCluster0);
+        recall = (double)TPCluster0 / (TPCluster0 + FNCluster0);
+        System.out.printf("Precision : %f\n", prec);
+        System.out.printf("Recall : %f\n", recall);
+        System.out.printf("F1 : %f\n\n", prec * recall / (prec + recall));
     }
 
     public static void confusionMatrix() {
